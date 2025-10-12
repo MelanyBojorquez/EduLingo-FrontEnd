@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import { loginUser } from '../services/AuthService'; // Importa la función de login
+import { loginUser } from '../services/AuthService'; 
 
-export const useLoginViewModel = (onLoginSuccess) => { // Asegúrate de que navigation se pasa
+export const useLoginViewModel = (onLoginSuccess) => { 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false); 
+
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(!isPasswordVisible);
+    };
 
     const handleLogin = async () => {
         setIsLoading(true);
@@ -43,5 +48,7 @@ export const useLoginViewModel = (onLoginSuccess) => { // Asegúrate de que navi
         isLoading,
         error,
         handleLogin,
+        isPasswordVisible,
+        togglePasswordVisibility,
     };
 };

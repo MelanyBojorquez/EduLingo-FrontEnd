@@ -1,13 +1,21 @@
 // screens/LoginScreen.js
 import React from 'react';
-import { View, TextInput, Button, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { useLoginViewModel } from '../ViewModel/LoginViewModel';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons'; // Importar la librería de iconos
+import { useLoginViewModel } from '../ViewModel/LoginViewModel'; 
 
 const LoginScreen = ({ navigation }) => {
-    // Definimos qué hacer al iniciar sesión con éxito: navegar a 'HomeScreen'
+    
+    
     const handleSuccess = (user) => {
-        // navigation.replace previene volver a la pantalla de login con el botón 'atrás'
-        navigation.replace('Home', { userRole: user.role }); 
+        const userRole = user.role;
+        const userName = user.name;
+
+        if (userRole === 'Administrador') {
+            navigation.replace('AdminPanel', { userName }); 
+        } else {
+            navigation.replace('Home', { userRole, userName }); 
+        }
     };
 
     const { 
@@ -15,45 +23,74 @@ const LoginScreen = ({ navigation }) => {
         password, setPassword, 
         isLoading, 
         error, 
-        handleLogin 
+        handleLogin,
+        // Importar la lógica del ViewModel
+        isPasswordVisible, togglePasswordVisibility 
     } = useLoginViewModel(handleSuccess);
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>EduLingo Login Test</Text>
-            
-            {/* Mensaje de Error */}
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            <Text style={styles.logoTitle}>EduLingo</Text>
+            <Text style={styles.tagline}>"Hoy empiezas el viaje hacia la fluidez"</Text>
 
-            {/* Input Email */}
-            <TextInput
-                style={styles.input}
-                placeholder="Correo Electrónico (ej: alumno@edulingo.com)"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
+            <View style={styles.formContainer}>
+                <Text style={styles.heading}>Inicio de sesión</Text>
+                
+                <Text style={styles.label}>Ingresa tu correo electrónico</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="correolectrónico@dominio.com"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                />
 
-            {/* Input Contraseña */}
-            <TextInput
-                style={styles.input}
-                placeholder="Contraseña (ej: Alumno456)"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-            />
+                <Text style={styles.label}>Contraseña:</Text>
+                <View style={styles.passwordContainer}>
+                    <TextInput
+                        style={styles.passwordInput}
+                        placeholder="********"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry={!isPasswordVisible} // Usa el estado de visibilidad
+                    />
+                    {/* Botón de Ojo */}
+                    <TouchableOpacity 
+                        onPress={togglePasswordVisibility} 
+                        style={styles.toggleButton}
+                    >
+                        <Icon 
+                            name={isPasswordVisible ? "eye-outline" : "eye-off-outline"} // Cambia el icono
+                            size={24} 
+                            color="#333" 
+                        />
+                    </TouchableOpacity>
+                </View>
+                
+                {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-            {/* Botón de Ingreso */}
-            <Button
-                title={isLoading ? "Cargando..." : "INGRESAR"}
-                onPress={handleLogin}
-                disabled={isLoading}
-            />
-            
-            {isLoading && <ActivityIndicator size="small" color="#0000ff" style={styles.loading} />}
-            
-            <Text style={styles.footer}>¡Prueba tu conexión API!</Text>
+                {/* Botón Continuar */}
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={handleLogin}
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                        <Text style={styles.buttonText}>Continuar</Text>
+                    )}
+                </TouchableOpacity>
+
+                {/* Enlace Crear Cuenta */}
+                <View style={styles.footer}>
+                    <Text style={styles.footerText}>¿No tienes cuenta? </Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                        <Text style={styles.linkText}>Crear cuenta</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
     );
 };
@@ -61,95 +98,96 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        padding: 20,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#fff',
+        paddingHorizontal: 30,
+        paddingTop: 80, 
     },
-    title: {
-        fontSize: 24,
+    logoTitle: {
+        fontSize: 32,
         fontWeight: 'bold',
-        marginBottom: 30,
+        color: '#5E35B1', 
         textAlign: 'center',
+    },
+    tagline: {
+        fontSize: 16,
+        color: '#333',
+        textAlign: 'center',
+        marginBottom: 50,
+        fontStyle: 'italic',
+    },
+    formContainer: {
+        width: '100%',
+    },
+    heading: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 30,
+        color: '#333',
+    },
+    label: {
+        fontSize: 16,
+        color: '#333',
+        marginBottom: 8,
+        marginTop: 15,
     },
     input: {
         height: 50,
         borderColor: '#ccc',
         borderWidth: 1,
-        marginBottom: 15,
-        paddingHorizontal: 15,
         borderRadius: 8,
-        backgroundColor: 'white',
+        paddingHorizontal: 15,
+        fontSize: 16,
+    },
+    // Contraseña: Contenedor para el campo 
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 8,
+        height: 50,
+    },
+    passwordInput: {
+        flex: 1,
+        paddingHorizontal: 15,
+        fontSize: 16,
+    },
+    toggleButton: {
+        padding: 10,
+    },
+    // Botón Continuar (Negro)
+    button: {
+        backgroundColor: '#000',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 30,
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
     errorText: {
         color: 'red',
         textAlign: 'center',
-        marginBottom: 15,
-    },
-    loading: {
         marginTop: 10,
     },
     footer: {
-        marginTop: 50,
-        textAlign: 'center',
-        color: '#666',
-    }
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 20,
+    },
+    footerText: {
+        fontSize: 14,
+        color: '#333',
+    },
+    linkText: {
+        fontSize: 14,
+        color: '#5E35B1', 
+        fontWeight: 'bold',
+    },
 });
 
 export default LoginScreen;
-
-
-/*import React from 'react';
-import { View, TextInput, Button, Text, ActivityIndicator } from 'react-native';
-import { useLoginViewModel } from '../viewmodels/LoginViewModel';
-// Importa useNavigation de React Navigation si lo usas, o pásalo como prop
-
-const LoginScreen = ({ navigation }) => {
-    const { 
-        email, setEmail, 
-        password, setPassword, 
-        isLoading, 
-        error, 
-        handleLogin 
-    } = useLoginViewModel(navigation); // Pasa navigation al ViewModel
-
-    return (
-        <View style={{ /* ... Estilos *//*> }}>
-            <Text>Iniciar Sesión</Text>
-            
-            {/* Muestra el error *//*}
-            {error && <Text style={{ color: 'red' }}>{error}</Text>}
-
-            {/* Inputs *//*}
-            <TextInput
-                onChangeText={setEmail}
-                value={email}
-                keyboardType="email-address"
-                placeholder="Correo"
-            />
-            <TextInput
-                onChangeText={setPassword}
-                value={password}
-                secureTextEntry
-                placeholder="Contraseña"
-            />
-
-            {/* Botón y Spinner *//*}
-            {isLoading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-                <Button
-                    title="Ingresar"
-                    onPress={handleLogin}
-                    disabled={isLoading}
-                />
-            )}
-            
-            <Button 
-                title="Registrarse" 
-                onPress={() => navigation.navigate('Register')} 
-            /> 
-        </View>
-    );
-};
-
-export default LoginScreen;*/

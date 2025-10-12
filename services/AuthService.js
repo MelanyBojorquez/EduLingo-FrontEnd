@@ -1,5 +1,5 @@
 // services/AuthService.js
-import AsyncStorage from '@react-native-async-storage/async-storage';
+/*import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from './api';
 
 const TOKEN_KEY = 'userToken';
@@ -23,20 +23,21 @@ export const loginUser = async (email, password) => {
 };
 
 // Función de ejemplo para verificar la sesión al inicio de la app
-export const getToken = () => AsyncStorage.getItem(TOKEN_KEY);
+export const getToken = () => AsyncStorage.getItem(TOKEN_KEY);*/
 
 
 
 
 
 
-/*import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from './api'; // Importa el cliente de Axios configurado
 
 // Claves de AsyncStorage
 const TOKEN_KEY = 'userToken';
 const USER_DATA_KEY = 'currentUser';
 
+export const getToken = () => AsyncStorage.getItem(TOKEN_KEY);
 // ------------------------------------------
 // 1. FUNCIÓN DE LOGIN
 // ------------------------------------------
@@ -102,5 +103,5 @@ export const fetchLessons = async () => {
         }
     });
 
-    return response.data.lessons;*/
-//};
+    return response.data.lessons;
+};
