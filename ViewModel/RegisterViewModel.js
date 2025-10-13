@@ -1,49 +1,64 @@
 import { useState } from 'react';
-import { registerUser } from '../services/AuthService';
+import { Platform } from 'react-native';
 
-export const useRegisterViewModel = (onRegisterSuccess) => {
+// 1. IMPORTAMOS tu configuración central de la API.
+import { BASE_URL } from '../config/api'; 
+
+export const useRegisterViewModel = (onSuccess) => {
     const [name, setName] = useState('');
-    const [lastName, setLastName] = useState(''); 
-    const [gender, setGender] = useState('Femenino');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState('Alumno'); 
+    const [gender, setGender] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
-    
-    // Simplificamos idiomas para el registro
-    const native_language = 'Español';
-    const learning_language = 'Ingles';
+    const [error, setError] = useState(null);
 
-    const fullName = `${name} ${lastName}`.trim();
+    // 2. ELIMINAMOS la constante API_URL que yo había puesto. Ya no la necesitamos.
 
-    const handleRegister = async () => {
+    const handleRegister = async (userData) => {
         setIsLoading(true);
-        setError('');
+        setError(null);
 
-        if (!name || !email || !password || !role) {
-            setError('Todos los campos son obligatorios.');
-            setIsLoading(false);
-            return;
+        const formData = new FormData();
+
+        formData.append('name', userData.name);
+        formData.append('lastName', userData.lastName);
+        formData.append('email', userData.email);
+        formData.append('password', userData.password);
+        formData.append('gender', userData.gender);
+        formData.append('native_language', 'Español');
+        formData.append('learning_language', 'Ingles');
+
+        if (userData.image) {
+            const uri = userData.image;
+            const filename = uri.split('/').pop();
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : `image`;
+
+            formData.append('profilePicture', { uri, name: filename, type });
         }
 
         try {
-            const user = await registerUser({ 
-                name: fullName, 
-                email, 
-                password, 
-                native_language, 
-                learning_language,
-                role // Enviamos el rol seleccionado
+            // 3. USAMOS tu constante BASE_URL para construir la URL final.
+            //    Como BASE_URL ya incluye '/api', solo añadimos '/register'.
+            const response = await fetch(`${BASE_URL}/register`, {
+                method: 'POST',
+                body: formData,
             });
-            
-            console.log('Registro Exitoso. Rol:', user.role);
-            if (onRegisterSuccess) {
-                onRegisterSuccess(user);
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Algo salió mal');
             }
+
+            if (onSuccess) {
+                onSuccess(result.user);
+            }
+
         } catch (err) {
-            const message = err.response?.data?.message || 'Error de conexión o email ya registrado.';
-            setError(message);
+            console.error('Error en el registro:', err);
+            setError(err.message);
         } finally {
             setIsLoading(false);
         }
@@ -55,9 +70,9 @@ export const useRegisterViewModel = (onRegisterSuccess) => {
         email, setEmail,
         password, setPassword,
         gender, setGender,
-        //role, setRole, 
         isLoading,
         error,
-        handleRegister,
+        handleRegister
     };
 };
+
