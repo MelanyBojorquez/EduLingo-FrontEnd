@@ -33,6 +33,8 @@ const ModulesScreen = ({ navigation }) => {
         );
     };
 
+
+    
     const renderCourseItem = ({ item }) => (
         <View style={styles.itemContainer}>
             <View style={styles.textGroup}>
