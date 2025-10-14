@@ -11,7 +11,7 @@ const ModuleCreationScreen = () => {
         targetLanguage, setTargetLanguage,
         objectives, setObjectives,
         lessons, addLesson, updateLesson,
-        isLoading, message, createCourse
+        isLoading, message, createCourse, removeLesson
     } = useModuleCreationViewModel();
 
     return (
@@ -49,8 +49,28 @@ const ModuleCreationScreen = () => {
             <Text style={styles.formSectionHeader}>Lecciones del Módulo</Text>
             {lessons.map((lesson, index) => (
                 <View key={index} style={styles.lessonCard}>
-                    <Text style={styles.lessonHeader}>{lesson.lessonTitle}</Text>
+                     <Text style={styles.lessonHeader}>{lesson.lessonTitle}</Text>
+                    
+                    {/* 🚨 BOTÓN DE BORRAR  */}
+                    <TouchableOpacity 
+                        onPress={() => removeLesson(index)}
+                        style={styles.deleteButton} // Necesitas definir styles.deleteButton
+                    >
+                        <Icon name="trash" size={20} color="red" />
+                    </TouchableOpacity>
+                    
                     <TextInput style={styles.input} value={lesson.url} onChangeText={(text) => updateLesson(index, 'url', text)} placeholder="URL del Video (YouTube, etc.)" />
+                    
+                    {/* CAMPO DE DESARROLLO */}
+                    <Text style={styles.inputLabel}>Desarrollo de la Lección</Text>
+                    <TextInput 
+                        style={styles.inputArea} 
+                        value={lesson.development} 
+                        onChangeText={(text) => updateLesson(index, 'development', text)} 
+                        placeholder="Contenido principal y texto de la lección"
+                        multiline
+                        textAlignVertical="top"
+                    />
                 </View>
             ))}
             
