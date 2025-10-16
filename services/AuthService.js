@@ -6,6 +6,7 @@ const TOKEN_KEY = 'userToken';
 const USER_DATA_KEY = 'currentUser';
 
 export const getToken = () => AsyncStorage.getItem(TOKEN_KEY);
+
 // ------------------------------------------
 // 1. FUNCIÓN DE LOGIN (Tu código original - sin cambios)
 // ------------------------------------------
@@ -27,14 +28,14 @@ export const loginUser = async (email, password) => {
 };
 
 // ------------------------------------------
-// 2. FUNCIÓN DE REGISTRO (Tu código original - con una pequeña mejora)
+// 2. FUNCIÓN DE REGISTRO (Tu código original - sin cambios)
 // ------------------------------------------
 export const registerUser = async (userData) => {
     try {
         // Se le añade la cabecera para asegurar que FormData se envíe correctamente
         const response = await api.post('/register', userData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        });
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
         
         const { token, user } = response.data;
         
@@ -76,17 +77,50 @@ export const fetchLessons = async () => {
 
 
 // ------------------------------------------
-// 5. --- ¡ÚNICA FUNCIÓN AÑADIDA! ---
+// 5. FUNCIÓN PARA OBTENER DATOS DEL USUARIO (Tu código original - sin cambios)
 // ------------------------------------------
-// Esta función es necesaria para que la pantalla de perfil pueda
-// recuperar los datos del usuario que ha iniciado sesión.
 export const getUser = async () => {
-    try {
-        const jsonValue = await AsyncStorage.getItem(USER_DATA_KEY);
-        return jsonValue != null ? JSON.parse(jsonValue) : null;
-    } catch (e) {
-        console.error("Error obteniendo los datos del usuario", e);
-        return null;
-    }
+    try {
+        const jsonValue = await AsyncStorage.getItem(USER_DATA_KEY);
+        return jsonValue != null ? JSON.parse(jsonValue) : null;
+    } catch (e) {
+        console.error("Error obteniendo los datos del usuario", e);
+        return null;
+    }
 };
 
+
+// --- ¡NUEVAS FUNCIONES AÑADIDAS PARA "MIS CURSOS"! ---
+
+// 6. Obtiene la lista de cursos en los que el alumno YA ESTÁ INSCRITO
+export const getMyCourses = async () => {
+    const token = await getToken();
+    if (!token) throw new Error('No autenticado');
+    
+    const response = await api.get('/my-courses', {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data.courses;
+};
+
+// 7. Inscribe al alumno en un nuevo curso
+export const enrollInCourse = async (lessonId) => {
+    const token = await getToken();
+    if (!token) throw new Error('No autenticado');
+    
+    const response = await api.post(`/my-courses/${lessonId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+};
+
+// 8. Elimina un curso de la lista del alumno
+export const unenrollFromCourse = async (enrollmentId) => {
+    const token = await getToken();
+    if (!token) throw new Error('No autenticado');
+    
+    const response = await api.delete(`/my-courses/${enrollmentId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+};
