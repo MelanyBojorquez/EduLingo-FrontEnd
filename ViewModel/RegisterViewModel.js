@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Platform } from 'react-native';
 
-// 1. IMPORTAMOS tu configuración central de la API.
+// Importamos la configuración central de la API.
 import { BASE_URL } from '../config/api'; 
 
 export const useRegisterViewModel = (onSuccess) => {
@@ -13,21 +13,28 @@ export const useRegisterViewModel = (onSuccess) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // 2. ELIMINAMOS la constante API_URL que yo había puesto. Ya no la necesitamos.
-
     const handleRegister = async (userData) => {
         setIsLoading(true);
         setError(null);
 
-        const formData = new FormData();
+        // Validaciones básicas (Aseguramos que los campos esenciales no estén vacíos)
+        if (!userData.name || !userData.lastName || !userData.email || !userData.password) {
+            setError('Todos los campos son obligatorios.');
+            setIsLoading(false);
+            return;
+        }
 
-        formData.append('name', userData.name);
-        formData.append('lastName', userData.lastName);
+        const formData = new FormData();
+        const fullName = `${userData.name} ${userData.lastName}`.trim();
+
+        // Campos de texto
+        formData.append('name', fullName);
         formData.append('email', userData.email);
         formData.append('password', userData.password);
         formData.append('gender', userData.gender);
-        formData.append('native_language', 'Español');
-        formData.append('learning_language', 'Ingles');
+        formData.append('native_language', 'Español'); 
+        formData.append('learning_language', 'Ingles'); 
+        formData.append('role', 'Alumno'); 
 
         if (userData.image) {
             const uri = userData.image;
@@ -39,26 +46,48 @@ export const useRegisterViewModel = (onSuccess) => {
         }
 
         try {
-            // 3. USAMOS tu constante BASE_URL para construir la URL final.
-            //    Como BASE_URL ya incluye '/api', solo añadimos '/register'.
             const response = await fetch(`${BASE_URL}/register`, {
                 method: 'POST',
+                // Fetch automáticamente configura Content-Type: multipart/form-data para FormData
                 body: formData,
             });
 
-            const result = await response.json();
+            // Manejo de la Respuesta HTTP 
+            if (response.status === 409) {
+                 // Error 409: Conflict (Correo ya existe)
+                throw new Error('409: ¡Ya existe una cuenta con ese correo! Por favor, inicia sesión.');
+            }
+            
+            // Intentar leer el JSON incluso si hay otros errores 4xx/5xx
+            const result = await response.json(); 
 
             if (!response.ok) {
-                throw new Error(result.message || 'Algo salió mal');
+                 // Captura cualquier otro error del servidor (ej. 400 Bad Request o 500 Internal Error)
+                throw new Error(`${response.status}: ${result.message || 'Algo salió mal durante el registro.'}`);
             }
 
+            // Éxito:
             if (onSuccess) {
-                onSuccess(result.user);
+                onSuccess(result.user); 
             }
 
         } catch (err) {
+            const message = err.message || 'Error de conexión.';
+            let friendlyMessage = '';
+            
+            if (message.includes('409')) {
+                friendlyMessage = '🚫 ¡Ya existe una cuenta con ese correo! Por favor, inicia sesión.';
+            } else if (message.includes('400')) {
+                friendlyMessage = '⚠️ Datos incompletos. Revisa que llenaste todos los campos.';
+            } else if (message.includes('Network request failed') || message.includes('Error de conexión')) {
+                friendlyMessage = '🌐 Error de conexión. Verifica la IP del API o tu red.';
+            } else {
+                friendlyMessage = '❌ Error desconocido. No se pudo completar el registro.';
+            }
+            
             console.error('Error en el registro:', err);
-            setError(err.message);
+            setError(friendlyMessage);
+            
         } finally {
             setIsLoading(false);
         }
@@ -71,8 +100,7 @@ export const useRegisterViewModel = (onSuccess) => {
         password, setPassword,
         gender, setGender,
         isLoading,
-        error,
+        error, 
         handleRegister
     };
 };
-

@@ -93,6 +93,11 @@ const RegisterScreen = ({ navigation }) => {
                 <Text style={styles.logoTitle}>EduLingo</Text>
                 <Text style={styles.tagline}>"Hoy empiezas el viaje hacia la fluidez"</Text>
 
+                {error && (
+                    <View style={styles.errorBox}>
+                        <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                )}
                 <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
                     {image ? (
                         <Image source={{ uri: image }} style={styles.profileImage} />
@@ -169,10 +174,24 @@ const styles = StyleSheet.create({
     radioLabel: { fontSize: 16, marginLeft: 8, color: '#333' },
     button: { backgroundColor: '#000', padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 30 },
     buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-    errorText: { color: 'red', textAlign: 'center', marginVertical: 10 },
     footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
     footerText: { fontSize: 14, color: '#333' },
     linkText: { fontSize: 14, color: '#5E35B1', fontWeight: 'bold' },
+    errorBox: {
+        backgroundColor: '#FFE5E5', 
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 15,
+        borderLeftWidth: 4,
+        borderColor: '#DC3545',
+        marginHorizontal: 30, 
+    },
+    errorText: {
+        color: '#B71C1C', 
+        fontSize: 14,
+        textAlign: 'center',
+        fontWeight: '500',
+    },
 });
 
 export default RegisterScreen;
