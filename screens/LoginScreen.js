@@ -36,6 +36,12 @@ const LoginScreen = ({ navigation }) => {
             <View style={styles.formContainer}>
                 <Text style={styles.heading}>Inicio de sesión</Text>
                 
+                {/*  RENDERIZAR EL ERROR*/}
+                {error && (
+                    <View style={styles.errorBox}>
+                        <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                )}
                 <Text style={styles.label}>Ingresa tu correo electrónico</Text>
                 <TextInput
                     style={styles.input}
@@ -169,11 +175,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    errorText: {
-        color: 'red',
-        textAlign: 'center',
-        marginTop: 10,
-    },
     footer: {
         flexDirection: 'row',
         justifyContent: 'center',
@@ -187,6 +188,20 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#5E35B1', 
         fontWeight: 'bold',
+    },
+    errorBox: {
+        backgroundColor: '#FFE5E5', // Fondo suave rojizo
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 15,
+        borderLeftWidth: 4, // Borde izquierdo para destacar
+        borderColor: '#DC3545',
+    },
+    errorText: {
+        color: '#B71C1C', // Texto rojo oscuro
+        fontSize: 14,
+        textAlign: 'center',
+        fontWeight: '500',
     },
 });
 

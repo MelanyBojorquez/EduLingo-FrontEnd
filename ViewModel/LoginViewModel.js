@@ -22,20 +22,33 @@ export const useLoginViewModel = (onLoginSuccess) => {
             return;
         }
 
-         try {
+        try {
             const user = await loginUser(email, password);
             
-            // Si el loginUser no lanza error, es exitoso: Llama al callback de navegación
+            // Si el loginUser no lanza error, es exitoso
             console.log('Login Exitoso: Usuario:', user.role);
             if (onLoginSuccess) {
                 onLoginSuccess(user);
             }
 
         } catch (err) {
-            // Captura errores del API (401, 500, etc.)
-            const message = err.response?.data?.message || 'Error de conexión. Verifica que el API esté corriendo.';
-            setError(message);
-            console.error(err);
+            
+            const status = err.response?.status;
+            let friendlyMessage = '';
+
+            if (status === 401) {
+                // Error 401: Unauthorized (No autorizado) - Credenciales incorrectas
+                friendlyMessage = '🔑 Usuario y/o contraseña equivocada. ¡Inténtalo de nuevo!';
+            } else if (status === 409) {
+                // Error 409: Conflict 
+                friendlyMessage = '⚠️ El correo electrónico ya está en uso. Prueba Iniciar Sesión.';
+            } else {
+                // Otros errores 
+                friendlyMessage = '🌐 No pudimos contactar al servidor. Verifica tu conexión de red o la IP del API.';
+            }
+            
+            setError(friendlyMessage);
+            console.error(`Fallo de autenticación (Status: ${status}):`, err);
 
         } finally {
             setIsLoading(false);
@@ -46,7 +59,7 @@ export const useLoginViewModel = (onLoginSuccess) => {
         email, setEmail,
         password, setPassword,
         isLoading,
-        error,
+        error, 
         handleLogin,
         isPasswordVisible,
         togglePasswordVisibility,

@@ -127,10 +127,10 @@ const styles = StyleSheet.create({
     pickerContainer: { borderColor: '#ccc', borderWidth: 1, borderRadius: 8, backgroundColor: '#fff', marginBottom: 10 },
     lessonCard: { backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 15, borderWidth: 1, borderColor: '#e0e0e0' },
     lessonHeader: { fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: '#5E35B1' },
-    // 🚨 ESTILO NUEVO PARA EL BORRADO
+    // ESTILO NUEVO PARA EL BORRADO
     lessonHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 },
     deleteButton: { backgroundColor: '#DC3545', padding: 5, borderRadius: 5, justifyContent: 'center', alignItems: 'center' },
-    // FIN ESTILO NUEVO
+    
     addButton: { flexDirection: 'row', backgroundColor: '#3CB371', padding: 12, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
     addButtonText: { color: '#fff', marginLeft: 10, fontWeight: 'bold', fontSize: 16 },
     saveButton: { backgroundColor: '#5E35B1', padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 30, marginBottom: 50 },
